@@ -85,27 +85,16 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 #         smtp.send_message(msg)
 def send_invoice_email(receiver_email, pdf_data, invoice_no):
-
-    print("1. Function started")
+    print("=== EMAIL FUNCTION STARTED ===", flush=True)
+    print(f"Receiver: {receiver_email}", flush=True)
+    print(f"EMAIL_ADDRESS is set: {EMAIL_ADDRESS is not None}", flush=True)
+    print(f"EMAIL_PASSWORD is set: {EMAIL_PASSWORD is not None}", flush=True)
 
     msg = EmailMessage()
-
     msg["Subject"] = f"Car Rental Invoice #{invoice_no}"
     msg["From"] = EMAIL_ADDRESS
     msg["To"] = receiver_email
-
-    msg.set_content(
-        """
-Hello Customer,
-
-Thank you for choosing our Car Rental System.
-
-Your invoice PDF is attached.
-
-Regards,
-Car Rental System
-"""
-    )
+    msg.set_content("Test")
 
     msg.add_attachment(
         pdf_data,
@@ -114,34 +103,22 @@ Car Rental System
         filename=f"Invoice_{invoice_no}.pdf"
     )
 
-    print("2. Opening SMTP connection")
+    print("Opening SMTP connection...", flush=True)
 
     with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as smtp:
-
-        print("3. Connected")
+        print("SMTP connected", flush=True)
 
         smtp.ehlo()
-
-        print("4. Starting TLS")
-
         smtp.starttls()
-
-        print("5. TLS Started")
-
         smtp.ehlo()
 
-        print("6. Logging in")
+        print("Logging in...", flush=True)
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
 
-        smtp.login(
-            EMAIL_ADDRESS,
-            EMAIL_PASSWORD
-        )
-
-        print("7. Logged in")
-
+        print("Sending...", flush=True)
         smtp.send_message(msg)
 
-        print("8. Email Sent")
+        print("Done!", flush=True)
 # ------------------------
 # HOME
 # ------------------------
