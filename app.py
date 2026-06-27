@@ -45,13 +45,54 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+# def send_invoice_email(receiver_email, pdf_data, invoice_no):
+
+#     msg = EmailMessage()
+
+#     msg['Subject'] = f'Car Rental Invoice #{invoice_no}'
+#     msg['From'] = EMAIL_ADDRESS
+#     msg['To'] = receiver_email
+
+#     msg.set_content(
+#         """
+#         Hello Customer,
+
+#         Thank you for choosing our Car Rental System.
+
+#         Your invoice PDF is attached.
+
+#         Regards,
+#         Car Rental System
+#         """
+#     )
+
+#     msg.add_attachment(
+#         pdf_data,
+#         maintype='application',
+#         subtype='pdf',
+#         filename=f'Invoice_{invoice_no}.pdf'
+#     )
+
+#     with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as smtp:
+#         smtp.ehlo()
+#         smtp.starttls()
+#         smtp.ehlo()
+
+#         smtp.login(
+#             EMAIL_ADDRESS,
+#             EMAIL_PASSWORD
+#         )
+
+#         smtp.send_message(msg)
 def send_invoice_email(receiver_email, pdf_data, invoice_no):
+
+    print("1. Function started")
 
     msg = EmailMessage()
 
-    msg['Subject'] = f'Car Rental Invoice #{invoice_no}'
-    msg['From'] = EMAIL_ADDRESS
-    msg['To'] = receiver_email
+    msg["Subject"] = f"Car Rental Invoice #{invoice_no}"
+    msg["From"] = EMAIL_ADDRESS
+    msg["To"] = receiver_email
 
     msg.set_content(
         """
@@ -63,27 +104,44 @@ Your invoice PDF is attached.
 
 Regards,
 Car Rental System
-        """
+"""
     )
 
     msg.add_attachment(
         pdf_data,
-        maintype='application',
-        subtype='pdf',
-        filename=f'Invoice_{invoice_no}.pdf'
+        maintype="application",
+        subtype="pdf",
+        filename=f"Invoice_{invoice_no}.pdf"
     )
 
+    print("2. Opening SMTP connection")
+
     with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as smtp:
+
+        print("3. Connected")
+
         smtp.ehlo()
+
+        print("4. Starting TLS")
+
         smtp.starttls()
+
+        print("5. TLS Started")
+
         smtp.ehlo()
-    
+
+        print("6. Logging in")
+
         smtp.login(
             EMAIL_ADDRESS,
             EMAIL_PASSWORD
         )
-    
+
+        print("7. Logged in")
+
         smtp.send_message(msg)
+
+        print("8. Email Sent")
 # ------------------------
 # HOME
 # ------------------------
