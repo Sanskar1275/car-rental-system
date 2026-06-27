@@ -1,30 +1,40 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
 from werkzeug.utils import secure_filename
 from reportlab.pdfgen import canvas
 from flask import send_file
 import io
 import smtplib
 from email.message import EmailMessage
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
-app.secret_key = "car_rental_secret_key"
+app.secret_key = os.getenv("SECRET_KEY")
 
-# MySQL Configuration
+app.config['MYSQL_HOST'] = os.getenv("MYSQL_HOST")
+app.config['MYSQL_USER'] = os.getenv("MYSQL_USER")
+app.config['MYSQL_PASSWORD'] = os.getenv("MYSQL_PASSWORD")
+app.config['MYSQL_DB'] = os.getenv("MYSQL_DB")
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Sansk@1275'
-app.config['MYSQL_DB'] = 'car_rental_system'
+app.config['MYSQL_PORT'] = int(os.getenv("MYSQL_PORT"))
+
+import os
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+app.config['MYSQL_SSL'] = {
+    "ca": os.path.join(BASE_DIR, "ca.pem")
+}
 
 mysql = MySQL(app)
-# Email Configuration
 
-EMAIL_ADDRESS = "admin.car.rental.123@gmail.com"
-EMAIL_PASSWORD = "fzxk dofo nnxa ncam"
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 # Upload Configuration
 
