@@ -7,8 +7,8 @@ from flask import send_file
 import io
 import smtplib
 from email.message import EmailMessage
-import os
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
@@ -73,16 +73,16 @@ Car Rental System
         filename=f'Invoice_{invoice_no}.pdf'
     )
 
-    with smtplib.SMTP_SSL(
-        'smtp.gmail.com',
-        465
-    ) as smtp:
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as smtp:
+        smtp.ehlo()
+        smtp.starttls()
+        smtp.ehlo()
     
         smtp.login(
             EMAIL_ADDRESS,
             EMAIL_PASSWORD
         )
-
+    
         smtp.send_message(msg)
 # ------------------------
 # HOME
@@ -692,8 +692,6 @@ def bills():
     ))
 
     bills_data = cur.fetchall()
-
-    print(bills_data)
 
     cur.close()
 
@@ -1528,4 +1526,4 @@ if __name__ == "__main__":
     import webbrowser
 
     # webbrowser.open("http://127.0.0.1:5000")
-    app.run(debug=True)
+    app.run()
