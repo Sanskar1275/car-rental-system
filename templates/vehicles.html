@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Vehicle Inventory</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- PAGE -->
+    <div class="vehicle-page">
+
+        <div class="rental-header">
+
+            <h2>🚘 Vehicle Inventory</h2>
+        
+            <div class="form-buttons">
+
+                <a href="/dashboard" class="back-btn">
+
+                    ⬅ Back
+
+                </a>
+
+                <a href="/add_vehicle" class="btn-add-rental">
+
+                    ➕ Add Vehicle
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- SEARCH -->
+
+        <div class="filter-card">
+
+            <form method="GET" class="filter-form">
+
+                <input type="text" name="search" value="{{ request.args.get('search','') }}"
+                    placeholder="Search Brand, Model, Vehicle Number">
+
+                <button type="submit" class="search-btn">
+
+                    🔍 Search
+
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- TABLE -->
+
+        <div class="table-container">
+
+            <table class="vehicle-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Vehicle No</th>
+                        <th>Fuel</th>
+                        <th>Transmission</th>
+                        <th>Seats</th>
+                        <th>Price/Day</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+
+                    {% if vehicles|length == 0 %}
+                    <tr>
+                        <td colspan="10" style="text-align:center;padding:40px;">
+                            🚗 No vehicles found
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    {% for v in vehicles %}
+
+                    <tr>
+
+                        <td>{{ v[0] }}</td>
+
+                        <td>{{ v[1] }}</td>
+
+                        <td>{{ v[2] }}</td>
+
+                        <td>
+                            <span class="vehicle-number">
+                                {{ v[3] }}
+                            </span>
+                        </td>
+
+                        <td>{{ v[5] }}</td>
+
+                        <td>{{ v[6] }}</td>
+
+                        <td>{{ v[7] }}</td>
+
+                        <td class="vehicle-price">
+                            ₹{{ v[8] }}
+                        </td>
+
+                        <td>
+
+                            {% if v[9] == 'Available' %}
+
+                            <span class="status-active">
+                                Available
+                            </span>
+
+                            {% elif v[9] == 'Maintenance' %}
+
+                            <span class="status-maintenance">
+                                Maintenance
+                            </span>
+
+                            {% else %}
+
+                            <span class="status-cancelled">
+                                Booked
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <div class="vehicle-actions">
+
+                                <a href="/edit_vehicle/{{ v[0] }}" class="vehicle-edit" onclick="return confirm('Edit this vehicle?')">
+
+                                    Edit
+
+                                </a>
+
+                                <a href="/delete_vehicle/{{ v[0] }}" class="vehicle-delete"
+                                    onclick="return confirm('Delete this vehicle?')">
+
+                                    Delete
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

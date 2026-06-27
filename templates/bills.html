@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Billing Management</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="customer-page">
+
+        <div class="rental-header">
+
+            <h2>💰 Billing Management</h2>
+
+            <div class="form-buttons">
+
+                <a href="/dashboard" class="back-btn">
+
+                    ⬅ Back
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="table-container">
+
+            <table class="customer-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Bill ID</th>
+                        <th>Customer</th>
+                        <th>Vehicle</th>
+                        <th>Rent Amount</th>
+                        <th>GST</th>
+                        <th>Final Amount</th>
+                        <th>Status</th>
+                        <th>Invoice</th>
+                        <th>Email</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for b in bills %}
+
+                    <tr>
+
+                        <td>{{ b[0] }}</td>
+
+                        <td>
+                            <strong>{{ b[1] }}</strong>
+                        </td>
+
+                        <td>
+                            {{ b[2] }} {{ b[3] }}
+                        </td>
+
+                        <td>
+                            ₹{{ b[4] }}
+                        </td>
+
+                        <td>
+                            ₹{{ b[5] }}
+                        </td>
+
+                        <td class="amount-cell">
+
+                            ₹{{ b[6] }}
+
+                        </td>
+
+                        <td>
+
+                            {% if b[7]|trim|lower == 'paid' %}
+
+                            <span class="status-active">
+                                Paid
+                            </span>
+
+                            {% else %}
+
+                            <span class="status-cancelled">
+                                Pending
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a href="/invoice/{{ b[0] }}" class="action-btn bill-btn">
+
+                                📄 PDF
+
+                            </a>
+
+                        </td>
+
+                        <td>
+
+                            <a href="/send_invoice/{{ b[0] }}" class="action-btn complete-btn">
+
+                                📧 Email
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

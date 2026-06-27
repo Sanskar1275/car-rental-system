@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Rental Management</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="rental-page">
+
+        <!-- Header -->
+
+        <div class="rental-header">
+
+            <h2>
+                📅 Rental Management
+            </h2>
+
+            <div class="form-buttons">
+
+                <a href="/dashboard" class="back-btn">
+
+                    ⬅ Back
+
+                </a>
+
+                <a href="/add_rental" class="btn-add-rental">
+
+                    ➕ Add Rental
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Filter Section -->
+
+        <div class="filter-card">
+
+            <form method="GET" class="filter-form">
+
+                <select name="status">
+
+                    <option value="">
+                        All Rentals
+                    </option>
+
+                    <option value="Active">
+                        Active
+                    </option>
+
+                    <option value="Completed">
+                        Completed
+                    </option>
+
+                    <option value="Cancelled">
+                        Cancelled
+                    </option>
+
+                </select>
+
+                <button type="submit" class="search-btn">
+
+                    🔍 Filter
+
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- Rental Table -->
+
+        <div class="table-container">
+
+            <table class="rental-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Vehicle</th>
+                        <th>Pickup Date</th>
+                        <th>Return Date</th>
+                        <th>Total Days</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Complete Rental</th>
+                        <th>Generate Bill</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for r in rentals %}
+
+                    <tr>
+
+                        <td>{{ r[0] }}</td>
+
+                        <td>{{ r[1] }}</td>
+
+                        <td>
+
+                            {{ r[2] }}
+                            {{ r[3] }}
+
+                        </td>
+
+                        <td>{{ r[4] }}</td>
+
+                        <td>{{ r[5] }}</td>
+
+                        <td>{{ r[6] }}</td>
+
+                        <td class="amount-cell">
+
+                            ₹{{ r[7] }}
+
+                        </td>
+
+                        <td>
+
+                            {% if r[8] == 'Active' %}
+
+                            <span class="status-active">
+                                Active
+                            </span>
+
+                            {% elif r[8] == 'Completed' %}
+
+                            <span class="status-completed">
+                                Completed
+                            </span>
+
+                            {% else %}
+
+                            <span class="status-cancelled">
+                                Cancelled
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if r[8] == 'Active' %}
+
+                            <a href="/complete_rental/{{ r[0] }}" class="action-btn complete-btn">
+
+                                Complete
+
+                            </a>
+
+                            {% else %}
+
+                            <span class="status-completed">
+                                Done
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a href="/generate_bill/{{ r[0] }}" class="action-btn bill-btn">
+
+                                Generate Bill
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

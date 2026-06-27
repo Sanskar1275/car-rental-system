@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customers</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+    <!-- PAGE -->
+    <div class="customer-page">
+
+        <div class="rental-header">
+
+            <h2>👥 Customer Management</h2>
+
+            <div class="form-buttons">
+
+                <a href="/dashboard" class="back-btn">
+
+                    ⬅ Back
+
+                </a>
+
+                <a href="/add_customer" class="btn-add-rental">
+
+                    ➕ Add Customer
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- SEARCH -->
+
+        <div class="filter-card">
+
+            <form method="GET" class="filter-form">
+
+                <input type="text" name="search" placeholder="Search Customer Name, Email, Phone">
+
+                <button type="submit" class="search-btn">
+
+                    🔍 Search
+
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- TABLE -->
+
+        <div class="table-container">
+
+            <table class="customer-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>License No</th>
+                        <th>Address</th>
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for c in customers %}
+
+                    <tr>
+
+                        <td>{{ c[0] }}</td>
+
+                        <td>
+                            <strong>{{ c[1] }}</strong>
+                        </td>
+
+                        <td>{{ c[2] }}</td>
+
+                        <td>{{ c[3] }}</td>
+
+                        <td>{{ c[4] }}</td>
+
+                        <td>{{ c[5] }}</td>
+
+                        <td>
+
+                            <div class="customer-actions">
+
+                                <a href="/edit_customer/{{c[0]}}" class="customer-edit">
+
+                                    Edit
+
+                                </a>
+
+                                <a href="/delete_customer/{{c[0]}}" class="customer-delete"
+                                    onclick="return confirm('Delete Customer?')">
+
+                                    Delete
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

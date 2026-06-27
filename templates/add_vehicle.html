@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Vehicle</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+
+</head>
+
+<body>
+
+
+    <div class="customer-page">
+
+        <div class="rental-header">
+
+            <h2>🚘 Add New Vehicle</h2>
+
+        </div>
+
+        <div class="customer-form-card">
+
+            <form method="POST" enctype="multipart/form-data">
+
+                <div class="form-group">
+
+                    <label>Vehicle Brand</label>
+
+                    <input type="text" name="brand" placeholder="e.g. Toyota" required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Vehicle Model</label>
+
+                    <input type="text" name="model" placeholder="e.g. Innova" required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Vehicle Number</label>
+
+                    <input type="text" name="vehicle_number" placeholder="e.g. MH20AB1234" required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Fuel Type</label>
+
+                    <select name="fuel_type" required>
+
+                        <option value="">
+                            Select Fuel Type
+                        </option>
+
+                        <option value="Petrol">
+                            Petrol
+                        </option>
+
+                        <option value="Diesel">
+                            Diesel
+                        </option>
+
+                        <option value="CNG">
+                            CNG
+                        </option>
+
+                        <option value="Electric">
+                            Electric
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Transmission</label>
+
+                    <select name="transmission" required>
+
+                        <option value="">
+                            Select Transmission
+                        </option>
+
+                        <option value="Manual">
+                            Manual
+                        </option>
+
+                        <option value="Automatic">
+                            Automatic
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Number of Seats</label>
+
+                    <input type="number" name="seats" min="2" max="12" required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Price Per Day (₹)</label>
+
+                    <input type="number" name="price_per_day" placeholder="Enter Rental Price" required>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Vehicle Status</label>
+
+                    <select name="status">
+
+                        <option value="Available">
+                            Available
+                        </option>
+
+                        <option value="Booked">
+                            Booked
+                        </option>
+
+                        <option value="Maintenance">
+                            Maintenance
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-buttons">
+
+                    <a href="/vehicles" class="back-btn">
+
+                        ⬅ Back
+
+                    </a>
+
+                    <button type="submit" class="save-customer-btn vehicle-update-btn">
+
+                        🚗 Add Vehicle
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>
