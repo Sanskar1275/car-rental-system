@@ -1,14 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+import os
+import io
+import base64
+import requests
+import smtplib
+
+from email.message import EmailMessage
+from dotenv import load_dotenv
+
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    session,
+    flash,
+    send_file,
+    url_for
+)
+
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from reportlab.pdfgen import canvas
-from flask import send_file
-import io
-import smtplib
-from email.message import EmailMessage
-from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
@@ -22,8 +35,7 @@ app.config['MYSQL_PASSWORD'] = os.getenv("MYSQL_PASSWORD")
 app.config['MYSQL_DB'] = os.getenv("MYSQL_DB")
 
 app.config['MYSQL_PORT'] = int(os.getenv("MYSQL_PORT"))
-
-import os
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -32,9 +44,6 @@ app.config['MYSQL_SSL'] = {
 }
 
 mysql = MySQL(app)
-
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 # Upload Configuration
 
@@ -45,80 +54,63 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# def send_invoice_email(receiver_email, pdf_data, invoice_no):
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+print("Brevo Key :", BREVO_API_KEY[:10])
 
-#     msg = EmailMessage()
-
-#     msg['Subject'] = f'Car Rental Invoice #{invoice_no}'
-#     msg['From'] = EMAIL_ADDRESS
-#     msg['To'] = receiver_email
-
-#     msg.set_content(
-#         """
-#         Hello Customer,
-
-#         Thank you for choosing our Car Rental System.
-
-#         Your invoice PDF is attached.
-
-#         Regards,
-#         Car Rental System
-#         """
-#     )
-
-#     msg.add_attachment(
-#         pdf_data,
-#         maintype='application',
-#         subtype='pdf',
-#         filename=f'Invoice_{invoice_no}.pdf'
-#     )
-
-#     with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as smtp:
-#         smtp.ehlo()
-#         smtp.starttls()
-#         smtp.ehlo()
-
-#         smtp.login(
-#             EMAIL_ADDRESS,
-#             EMAIL_PASSWORD
-#         )
-
-#         smtp.send_message(msg)
 def send_invoice_email(receiver_email, pdf_data, invoice_no):
-    print("=== EMAIL FUNCTION STARTED ===", flush=True)
-    print(f"Receiver: {receiver_email}", flush=True)
-    print(f"EMAIL_ADDRESS is set: {EMAIL_ADDRESS is not None}", flush=True)
-    print(f"EMAIL_PASSWORD is set: {EMAIL_PASSWORD is not None}", flush=True)
 
-    msg = EmailMessage()
-    msg["Subject"] = f"Car Rental Invoice #{invoice_no}"
-    msg["From"] = EMAIL_ADDRESS
-    msg["To"] = receiver_email
-    msg.set_content("Test")
+    pdf_base64 = base64.b64encode(pdf_data).decode()
 
-    msg.add_attachment(
-        pdf_data,
-        maintype="application",
-        subtype="pdf",
-        filename=f"Invoice_{invoice_no}.pdf"
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+
+    data = {
+        "sender": {
+            "name": "Car Rental System",
+            "email": SENDER_EMAIL
+        },
+        "to": [
+            {
+                "email": receiver_email
+            }
+        ],
+        "subject": f"Car Rental Invoice #{invoice_no}",
+        "textContent": f"""
+Hello Customer,
+
+Thank you for choosing our Car Rental System.
+
+Please find your invoice attached.
+
+Regards,
+Car Rental System
+""",
+        "attachment": [
+            {
+                "name": f"Invoice_{invoice_no}.pdf",
+                "content": pdf_base64
+            }
+        ]
+    }
+    print("Receiver :", receiver_email)
+    
+    response = requests.post(
+        "https://api.brevo.com/v3/smtp/email",
+        headers=headers,
+        json=data,
+        timeout=30
     )
 
-    print("Opening SMTP connection...", flush=True)
+    print("Status Code :", response.status_code)
+    print("Response :", response.text)
+    
+    if response.status_code != 201:
+        raise Exception(response.text)
 
-    with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as smtp:
-        print("SMTP connected", flush=True)
 
-        smtp.ehlo()
-        smtp.starttls()
-        smtp.ehlo()
-
-        print("Logging in...", flush=True)
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-
-        print("Sending...", flush=True)
-        smtp.send_message(msg)
-
-        print("Done!", flush=True)
 # ------------------------
 # HOME
 # ------------------------
@@ -1459,13 +1451,27 @@ def send_invoice(bill_id):
 
     pdf_data = buffer.getvalue()
 
-    send_invoice_email(
-        bill[3],      # customer email
-        pdf_data,
-        bill[0]
-    )
+    if not bill[3]:
 
-    flash("Invoice emailed successfully")
+        flash("Customer email not found")
+
+        return redirect('/bills')
+
+    try:
+
+        send_invoice_email(
+            bill[3],
+            pdf_data,
+            bill[0]
+        )
+
+        flash("Invoice emailed successfully")
+
+    except Exception as e:
+
+        print(e)
+
+        flash(f"Email failed : {e}")
 
     return redirect('/bills')
 
