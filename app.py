@@ -2,9 +2,7 @@ import os
 import io
 import base64
 import requests
-import smtplib
 
-from email.message import EmailMessage
 from dotenv import load_dotenv
 
 from flask import (
@@ -45,6 +43,14 @@ app.config['MYSQL_SSL'] = {
 
 mysql = MySQL(app)
 
+try:
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT DATABASE()")
+    print("Connected Database :", cur.fetchone())
+    cur.close()
+except Exception as e:
+    print("DB Connection Error :", e)
+
 # Upload Configuration
 
 UPLOAD_FOLDER = 'static/uploads/vehicles'
@@ -55,7 +61,10 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
-print("Brevo Key :", BREVO_API_KEY[:10])
+if BREVO_API_KEY:
+    print("Brevo Key Loaded")
+else:
+    print("Brevo API Key Missing")
 
 def send_invoice_email(receiver_email, pdf_data, invoice_no):
 
@@ -95,20 +104,19 @@ Car Rental System
             }
         ]
     }
-    print("Receiver :", receiver_email)
-    
+
+
     response = requests.post(
         "https://api.brevo.com/v3/smtp/email",
         headers=headers,
         json=data,
         timeout=30
     )
-
-    print("Status Code :", response.status_code)
-    print("Response :", response.text)
     
     if response.status_code != 201:
-        raise Exception(response.text)
+        raise Exception(
+            f"Brevo Error {response.status_code}: {response.text}"
+        )
 
 
 # ------------------------
@@ -133,18 +141,30 @@ def login():
 
         cur = mysql.connection.cursor()
 
-        cur.execute(
-            "SELECT * FROM users WHERE email=%s",
-            (email,)
-        )
+        cur.execute("""
+        SELECT
+            user_id,
+            fullname,
+            email,
+            phone,
+            password,
+            LOWER(role)
+        FROM users
+        WHERE email=%s
+        LIMIT 1
+        """, (email,))
 
         user = cur.fetchone()
+        print("User from DB :", user)
 
         cur.close()
 
         if user:
 
             stored_password = user[4]
+
+            print("Entered Password :", password)
+            print("Stored Hash :", stored_password)
 
             if check_password_hash(
                 stored_password,
@@ -154,9 +174,12 @@ def login():
                 session['user_id'] = user[0]
                 session['fullname'] = user[1]
                 session['role'] = user[5]
+                print("Login Successful")
 
                 return redirect('/dashboard')
-
+            
+        print("Password mismatch")
+        
         flash("Invalid Email or Password")
 
     return render_template('login.html')
@@ -164,41 +187,132 @@ def login():
 # ------------------------
 # SIGNUP
 # ------------------------
+# @app.route('/signup', methods=['GET', 'POST'])
+# def signup():
 
+#     if request.method == 'POST':
+
+#         print("Signup button clicked")
+
+#         fullname = request.form['fullname']
+#         email = request.form['email']
+#         phone = request.form['phone']
+#         password = request.form['password']
+
+#         hashed_password = generate_password_hash(password)
+
+#         cur = mysql.connection.cursor()
+
+#         cur.execute(
+#             "SELECT * FROM users WHERE email=%s",
+#             (email,)
+#         )
+
+#         existing = cur.fetchone()
+
+#         if existing:
+#             cur.close()
+#             flash("Email already registered")
+#             return redirect('/signup')
+
+#         try:
+#             cur.execute("""
+#             INSERT INTO users
+#             (fullname,email,phone,password,role)
+#             VALUES (%s,%s,%s,%s,%s)
+#             """,
+#             (
+#                 fullname,
+#                 email,
+#                 phone,
+#                 hashed_password,
+#                 "customer"
+#             ))
+
+#             mysql.connection.commit()
+            
+#             print("Committed Successfully")
+#             print("Inserted User :", fullname)
+#             print("Inserted Email :", email)
+#             print("Rows :", cur.rowcount)
+
+#             print("Rows inserted :", cur.rowcount)
+#             cur.close()
+
+#             flash("Registration Successful")
+#             return redirect('/login')
+
+#         except Exception as e:
+#             mysql.connection.rollback()
+#             print("Rows inserted:", cur.rowcount)
+#             cur.close()
+
+#             import traceback
+#             traceback.print_exc()
+
+#             print("DATABASE ERROR:", repr(e))
+
+#             flash(str(e))
+
+#             return redirect('/signup')
+
+#     # 👇 THIS MUST BE PRESENT
+#     return render_template("signup.html")
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
 
     if request.method == 'POST':
+        try:
+            print("Signup button clicked")
 
-        fullname = request.form['fullname']
-        email = request.form['email']
-        phone = request.form['phone']
-        password = request.form['password']
+            fullname = request.form['fullname']
+            email = request.form['email']
+            phone = request.form['phone']
+            password = request.form['password']
 
-        hashed_password = generate_password_hash(password)
+            print(fullname, email, phone)
 
-        cur = mysql.connection.cursor()
+            hashed_password = generate_password_hash(password)
 
-        cur.execute(
-            "SELECT * FROM users WHERE email=%s",
-            (email,)
-        )
-        
-        existing = cur.fetchone()
-        
-        if existing:
+            cur = mysql.connection.cursor()
+
+            cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+            existing = cur.fetchone()
+
+            if existing:
+                print("Email already exists")
+                cur.close()
+                flash("Email already registered")
+                return redirect('/signup')
+
+            print("Executing INSERT...")
+
+            cur.execute("""
+                INSERT INTO users(fullname,email,phone,password,role)
+                VALUES(%s,%s,%s,%s,%s)
+            """, (
+                fullname,
+                email,
+                phone,
+                hashed_password,
+                "customer"
+            ))
+
+            mysql.connection.commit()
+
+            print("INSERT SUCCESS")
+
             cur.close()
-            flash("Email already registered")
+
+            flash("Registration Successful")
+            return redirect('/login')
+
+        except Exception as e:
+            print("FULL ERROR:", e)
+            flash(str(e))
             return redirect('/signup')
 
-        mysql.connection.commit()
-        cur.close()
-
-        flash("Registration Successful")
-        return redirect('/login')
-
-    return render_template('signup.html')
-
+    return render_template("signup.html")
 
 # ------------------------
 
@@ -1526,6 +1640,8 @@ def dashboard():
     if 'user_id' not in session:
         return redirect('/login')
 
+    print(session)
+    
     cur = mysql.connection.cursor()
 
     cur.execute("SELECT COUNT(*) FROM vehicles")

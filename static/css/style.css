@@ -2395,3 +2395,62 @@ a {
     }
 
 }
+
+/* Hamburger Button */
+
+.menu-btn{
+    display:none;
+    position:fixed;
+    top:15px;
+    left:15px;
+    z-index:2000;
+    width:45px;
+    height:45px;
+    border:none;
+    border-radius:8px;
+    background:#0d6efd;
+    color:#fff;
+    font-size:24px;
+    cursor:pointer;
+}
+
+/* Mobile */
+
+@media (max-width:768px){
+
+    .menu-btn{
+        display:block;
+    }
+
+    #sidebar{
+        position:fixed;
+        top:0;
+        left:-260px;
+        width:250px;
+        height:100vh;
+        transition:.3s ease;
+        z-index:1500;
+    }
+
+    #sidebar.show{
+        left:0;
+    }
+
+    .dashboard-container{
+        margin-left:0 !important;
+        padding:90px 20px 20px;
+    }
+
+    .navbar{
+        padding-left:70px;
+    }
+
+    .module-grid{
+        grid-template-columns:1fr;
+    }
+
+    .stats-grid{
+        grid-template-columns:1fr;
+    }
+}
+

@@ -10,7 +10,14 @@
 </head>
 
 <body>
-    {% include 'includes/sidebar.html' %}
+    <button class="menu-btn" onclick="toggleSidebar()">
+        ☰
+    </button>
+
+    <div id="sidebar">
+        {% include 'includes/sidebar.html' %}
+    </div>
+
     <nav class="navbar navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/dashboard">
@@ -90,6 +97,12 @@
 
     </div>
 
-</body>
+    
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+}
+</script>
 
+</body>
 </html>
